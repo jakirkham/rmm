@@ -67,9 +67,14 @@ cdef class DeviceBuffer:
     def __getstate__(self):
         return self.tobytes()
 
-    def __setstate__(self, state):
-        cdef DeviceBuffer other = DeviceBuffer.c_frombytes(state)
-        self.c_obj = move(other.c_obj)
+    @cython.boundscheck(False)
+    def __setstate__(self, const unsigned char[::1] state not None):
+        cdef const void* p
+        cdef size_t s
+        with nogil:
+            p = <const void*>&state[0]
+            s = len(state)
+            self.c_obj.reset(new device_buffer(p, s))
 
     @property
     def __cuda_array_interface__(self):
