@@ -18,7 +18,7 @@
 # cython: language_level = 3
 
 from libcpp.memory cimport unique_ptr
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uint8_t, uintptr_t
 
 from rmm._lib.lib cimport cudaStream_t
 
@@ -49,7 +49,7 @@ cdef class DeviceBuffer:
     cdef DeviceBuffer c_from_unique_ptr(unique_ptr[device_buffer] ptr)
 
     @staticmethod
-    cdef DeviceBuffer c_frombytes(const unsigned char[::1] b,
+    cdef DeviceBuffer c_frombytes(const uint8_t[::1] b,
                                   uintptr_t stream=*)
     cpdef bytes tobytes(self, uintptr_t stream=*)
 

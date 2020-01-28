@@ -18,7 +18,7 @@
 # cython: language_level = 3
 
 from libcpp.memory cimport unique_ptr
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uint8_t, uintptr_t
 
 from cpython.bytes cimport PyBytes_FromStringAndSize, PyBytes_AS_STRING
 
@@ -90,7 +90,7 @@ cdef class DeviceBuffer:
 
     @staticmethod
     @cython.boundscheck(False)
-    cdef DeviceBuffer c_frombytes(const unsigned char[::1] b,
+    cdef DeviceBuffer c_frombytes(const uint8_t[::1] b,
                                   uintptr_t stream=0):
         if b is None:
             raise TypeError(
@@ -103,7 +103,7 @@ cdef class DeviceBuffer:
         return DeviceBuffer(ptr=p, size=s, stream=stream)
 
     @staticmethod
-    def frombytes(const unsigned char[::1] b, uintptr_t stream=0):
+    def frombytes(const uint8_t[::1] b, uintptr_t stream=0):
         return DeviceBuffer.c_frombytes(b, stream)
 
     cpdef bytes tobytes(self, uintptr_t stream=0):
