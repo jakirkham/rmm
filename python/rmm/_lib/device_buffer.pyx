@@ -90,8 +90,7 @@ cdef class DeviceBuffer:
 
     @staticmethod
     @cython.boundscheck(False)
-    cdef DeviceBuffer c_frombytes(const uint8_t[::1] b,
-                                  uintptr_t stream=0):
+    cdef DeviceBuffer c_frombytes(const uint8_t[::1] b, uintptr_t stream=0):
         if b is None:
             raise TypeError(
                 "Argument 'b' has incorrect type"

@@ -49,8 +49,7 @@ cdef class DeviceBuffer:
     cdef DeviceBuffer c_from_unique_ptr(unique_ptr[device_buffer] ptr)
 
     @staticmethod
-    cdef DeviceBuffer c_frombytes(const uint8_t[::1] b,
-                                  uintptr_t stream=*)
+    cdef DeviceBuffer c_frombytes(const uint8_t[::1] b, uintptr_t stream=*)
     cpdef bytes tobytes(self, uintptr_t stream=*)
 
     cdef size_t c_size(self)
