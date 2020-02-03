@@ -38,6 +38,15 @@ cdef extern from "rmm/device_buffer.hpp" namespace "rmm" nogil:
         size_t capacity()
 
 
+ctypedef fused const_chars:
+    const signed char[::1]
+    const unsigned char[::1]
+
+
+ctypedef fused chars:
+    signed char[::1]
+    unsigned char[::1]
+
 cdef class DeviceBuffer:
     cdef unique_ptr[device_buffer] c_obj
 
@@ -45,7 +54,7 @@ cdef class DeviceBuffer:
     cdef DeviceBuffer c_from_unique_ptr(unique_ptr[device_buffer] ptr)
 
     @staticmethod
-    cdef DeviceBuffer c_to_device(const unsigned char[::1] b,
+    cdef DeviceBuffer c_to_device(const_chars b,
                                   uintptr_t stream=*)
     cpdef copy_to_host(self, ary=*, uintptr_t stream=*)
     cpdef bytes tobytes(self, uintptr_t stream=*)
@@ -56,9 +65,9 @@ cdef class DeviceBuffer:
     cdef void* c_data(self)
 
 
-cpdef DeviceBuffer to_device(const unsigned char[::1] b, uintptr_t stream=*)
+cpdef DeviceBuffer to_device(const_chars b, uintptr_t stream=*)
 cpdef void copy_ptr_to_host(uintptr_t db,
-                            unsigned char[::1] hb,
+                            chars hb,
                             uintptr_t stream=*) nogil except *
 
 

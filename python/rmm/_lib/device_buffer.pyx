@@ -95,13 +95,13 @@ cdef class DeviceBuffer:
         return buf
 
     @staticmethod
-    cdef DeviceBuffer c_to_device(const unsigned char[::1] b,
+    cdef DeviceBuffer c_to_device(const_chars b,
                                   uintptr_t stream=0):
         """Calls ``to_device`` function on arguments provided"""
         return to_device(b, stream)
 
     @staticmethod
-    def to_device(const unsigned char[::1] b, uintptr_t stream=0):
+    def to_device(const_chars b, uintptr_t stream=0):
         """Calls ``to_device`` function on arguments provided"""
         return to_device(b, stream)
 
@@ -128,7 +128,7 @@ cdef class DeviceBuffer:
         cdef const device_buffer* dbp = self.c_obj.get()
         cdef size_t s = dbp.size()
 
-        cdef unsigned char[::1] hb = ary
+        cdef chars hb = ary
         if hb is None:
             # NumPy leverages huge pages under-the-hood,
             # which speeds up the copy from device to host.
@@ -168,7 +168,7 @@ cdef class DeviceBuffer:
 
 
 @cython.boundscheck(False)
-cpdef DeviceBuffer to_device(const unsigned char[::1] b, uintptr_t stream=0):
+cpdef DeviceBuffer to_device(const_chars b, uintptr_t stream=0):
     """Return a new ``DeviceBuffer`` with a copy of the data
 
     Parameters
@@ -201,7 +201,7 @@ cpdef DeviceBuffer to_device(const unsigned char[::1] b, uintptr_t stream=0):
 
 @cython.boundscheck(False)
 cpdef void copy_ptr_to_host(uintptr_t db,
-                            unsigned char[::1] hb,
+                            chars hb,
                             uintptr_t stream=0) nogil except *:
     """Copy from a device pointer to a buffer on host
 
