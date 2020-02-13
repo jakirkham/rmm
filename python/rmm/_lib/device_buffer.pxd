@@ -56,6 +56,7 @@ cdef class DeviceBuffer:
     cdef size_t c_size(self)
     cpdef void resize(self, size_t new_size)
     cpdef size_t capacity(self)
+    cpdef uintptr_t stream()
     cdef void* c_data(self)
 
 

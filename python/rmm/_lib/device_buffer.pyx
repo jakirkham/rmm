@@ -259,6 +259,10 @@ cdef class DeviceBuffer:
     cpdef size_t capacity(self):
         return self.c_obj.get()[0].capacity()
 
+    cpdef uintptr_t stream(self):
+        cdef uintptr_t stream = <uintptr_t>self.c_obj.get()[0].stream()
+        return stream
+
     cdef void* c_data(self):
         return self.c_obj.get()[0].data()
 
