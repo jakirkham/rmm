@@ -56,7 +56,7 @@ class fixed_multisize_memory_resource : public device_memory_resource {
  public:
 
   static constexpr std::size_t default_min_size = 1 << 18; // 256 KiB
-  static constexpr std::size_t default_max_size = 1 << 22; // 4 MiB
+  static constexpr std::size_t default_max_size = 1 << 23; // 8 MiB
 
   /**
    * @brief Construct a new fixed multisize memory resource object
