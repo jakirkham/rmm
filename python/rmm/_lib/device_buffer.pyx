@@ -34,6 +34,7 @@ from rmm._lib.lib cimport (
     cudaStream_t,
     cudaStreamSynchronize
 )
+from rmm._lib.memory_resource cimport get_default_resource
 
 cimport cython
 
@@ -43,7 +44,8 @@ cdef class DeviceBuffer:
     def __cinit__(self, *,
                   uintptr_t ptr=0,
                   size_t size=0,
-                  uintptr_t stream=0):
+                  uintptr_t stream=0,
+                  MemoryResource mr=None):
         """Construct a ``DeviceBuffer`` with optional size and data pointer
 
         Parameters
@@ -52,6 +54,7 @@ cdef class DeviceBuffer:
         size : size of the buffer to allocate
                (and possibly size of data to copy)
         stream : CUDA stream to use for construction and/or copying, default 0
+        mr : RMM `MemoryResource` to use for allocation
 
         Note
         ----
@@ -67,18 +70,24 @@ cdef class DeviceBuffer:
         """
         cdef const void* c_ptr
         cdef cudaStream_t c_stream
+        cdef device_memory_resource* c_mr
         cdef cudaError_t err
+
+        if mr is None:
+            c_mr = get_default_resource()
+        else:
+            c_mr = mr.c_obj.get().get_mr().get()
 
         with nogil:
             c_ptr = <const void*>ptr
             c_stream = <cudaStream_t>stream
 
             if size == 0:
-                self.c_obj.reset(new device_buffer())
+                self.c_obj.reset(new device_buffer(c_mr))
             elif c_ptr == NULL:
-                self.c_obj.reset(new device_buffer(size, c_stream))
+                self.c_obj.reset(new device_buffer(size, c_stream, c_mr))
             else:
-                self.c_obj.reset(new device_buffer(c_ptr, size, c_stream))
+                self.c_obj.reset(new device_buffer(c_ptr, size, c_stream, c_mr))
 
                 if c_stream == NULL:
                     err = cudaStreamSynchronize(c_stream)
