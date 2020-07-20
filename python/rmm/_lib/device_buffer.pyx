@@ -315,9 +315,9 @@ cpdef DeviceBuffer to_device(const unsigned char[::1] b, uintptr_t stream=0):
             " (expected bytes-like, got NoneType)"
         )
 
-    cdef uintptr_t p = <uintptr_t>&b[0]
-    cdef size_t s = len(b)
-    return DeviceBuffer(ptr=p, size=s, stream=stream)
+    cdef uintptr_t b_addr = <uintptr_t>&b[0]
+    cdef size_t b_len = len(b)
+    return DeviceBuffer(ptr=b_addr, size=b_len, stream=stream)
 
 
 @cython.boundscheck(False)
