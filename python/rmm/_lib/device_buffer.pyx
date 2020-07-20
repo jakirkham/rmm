@@ -432,7 +432,7 @@ cpdef void copy_host_to_ptr(const unsigned char[::1] hb,
 @cython.boundscheck(False)
 cpdef void copy_device_to_ptr(uintptr_t d_src,
                               uintptr_t d_dst,
-                              size_t count,
+                              size_t size,
                               uintptr_t stream=0) nogil except *:
     """Copy from a host pointer to a device pointer
 
@@ -462,7 +462,7 @@ cpdef void copy_device_to_ptr(uintptr_t d_src,
     """
     cdef cudaError_t err
 
-    err = cudaMemcpyAsync(<void*>d_dst, <const void*>d_src, count,
+    err = cudaMemcpyAsync(<void*>d_dst, <const void*>d_src, size,
                           cudaMemcpyDeviceToDevice, <cudaStream_t>stream)
     if err != cudaSuccess:
         with gil:
