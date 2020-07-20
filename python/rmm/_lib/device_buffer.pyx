@@ -17,6 +17,8 @@ cimport cython
 from cpython.bytes cimport PyBytes_AS_STRING, PyBytes_FromStringAndSize
 from libc.stdint cimport uintptr_t
 from libcpp.memory cimport unique_ptr
+from posix.mman cimport mlock, munlock
+from posix.unistd cimport _SC_PAGE_SIZE, sysconf
 
 from rmm._lib.lib cimport (
     cudaError_t,
@@ -315,9 +317,23 @@ cpdef DeviceBuffer to_device(const unsigned char[::1] b, uintptr_t stream=0):
             " (expected bytes-like, got NoneType)"
         )
 
-    cdef uintptr_t b_addr = <uintptr_t>&b[0]
+    cdef const void* b_ptr = <const void*>&b[0]
+    cdef uintptr_t b_addr = <uintptr_t>b_ptr
     cdef size_t b_len = len(b)
-    return DeviceBuffer(ptr=b_addr, size=b_len, stream=stream)
+    cdef DeviceBuffer db
+
+    cdef size_t page_size = sysconf(_SC_PAGE_SIZE)
+    cdef size_t b_page_offset = b_addr % page_size
+    cdef uintptr_t b_page_addr = b_addr - b_page_offset
+    cdef const void* b_page_ptr = <const void*>b_page_addr
+    cdef uintptr_t b_page_len = b_len + b_page_offset
+
+    try:
+        mlock(b_page_ptr, b_page_len)
+        db = DeviceBuffer(ptr=b_addr, size=b_len, stream=stream)
+    finally:
+        munlock(b_page_ptr, b_page_len)
+    return db
 
 
 @cython.boundscheck(False)
@@ -361,8 +377,13 @@ cpdef void copy_ptr_to_host(uintptr_t db,
     cdef const void* db_ptr = <const void*>db
     cdef cudaError_t err
 
-    err = cudaMemcpyAsync(hb_ptr, db_ptr, hb_len,
-                          cudaMemcpyDeviceToHost, <cudaStream_t>stream)
+    try:
+        mlock(hb_ptr, hb_len)
+        err = cudaMemcpyAsync(hb_ptr, db_ptr, hb_len,
+                              cudaMemcpyDeviceToHost, <cudaStream_t>stream)
+    finally:
+        munlock(hb_ptr, hb_len)
+
     if err != cudaSuccess:
         with gil:
             raise RuntimeError(f"Memcpy failed with error: {err}")
