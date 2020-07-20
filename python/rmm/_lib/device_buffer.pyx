@@ -411,9 +411,12 @@ cpdef void copy_host_to_ptr(const unsigned char[::1] hb,
                 " (expected bytes-like, got NoneType)"
             )
 
+    cdef void* db_ptr = <void*>db
+    cdef const void* hb_ptr = <const void*>&hb[0]
+    cdef size_t hb_len = len(hb)
     cdef cudaError_t err
 
-    err = cudaMemcpyAsync(<void*>db, <const void*>&hb[0], len(hb),
+    err = cudaMemcpyAsync(db_ptr, hb_ptr, hb_len,
                           cudaMemcpyHostToDevice, <cudaStream_t>stream)
     if err != cudaSuccess:
         with gil:
