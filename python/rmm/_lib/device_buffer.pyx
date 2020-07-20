@@ -461,9 +461,11 @@ cpdef void copy_device_to_ptr(uintptr_t d_src,
     >>> print(hb)
     array([10, 11, 12,  0,  0], dtype=uint8)
     """
+    cdef void* d_dst_ptr = <void*>d_dst
+    cdef const void* d_src_ptr = <const void*>d_src
     cdef cudaError_t err
 
-    err = cudaMemcpyAsync(<void*>d_dst, <const void*>d_src, size,
+    err = cudaMemcpyAsync(d_dst_ptr, d_src_ptr, size,
                           cudaMemcpyDeviceToDevice, <cudaStream_t>stream)
     if err != cudaSuccess:
         with gil:
