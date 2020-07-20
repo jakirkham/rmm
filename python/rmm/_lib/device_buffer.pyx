@@ -440,6 +440,7 @@ cpdef void copy_device_to_ptr(uintptr_t d_src,
     ----------
     d_src : pointer to data on device to copy from
     d_dst : pointer to data on device to write into
+    size : number of bytes to copy
     stream : CUDA stream to use for copying, default 0
 
     Note
